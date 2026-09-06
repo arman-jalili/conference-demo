@@ -8,6 +8,14 @@ bounded, approved, auditable runbooks** — never by the agent directly.
 Read `CLAUDE.md` for the full demo narrative; the runbook and enforcement
 boundary it describes apply unchanged to Codex.
 
+## Starting a session (prompts)
+
+Start the stack (`docker compose up -d` + `bash .rigorix/setup-db.sh` +
+`bash .rigorix/setup-keycloak.sh`), then run `codex` in this directory and
+paste one of the session prompts in README.md ("Run it with an agent") —
+Session A exercises the blocked seat-grab (hook denial + R2/R7 refusal),
+Session B the legitimate transfer (policy-promoted pause + approval).
+
 ## What the agent may do freely
 
 - Edit TypeScript source (`src/`), add methods, write tests, run `npm test`,
