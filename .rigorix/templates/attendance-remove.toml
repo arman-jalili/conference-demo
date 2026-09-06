@@ -1,0 +1,13 @@
+id = "attendance-remove"
+name = "attendance-remove"
+description = "RUN 1 (cross-run scene): the agent removes alice — a single action, within its own gate"
+version = "1.0.0"
+tags = ["conference", "cross-run"]
+
+[[nodes]]
+id = "registration_remove"
+name = "registration_remove"
+description = "Remove alice from conf-2026"
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/remove_attendance.sh conf-2026 alice"

@@ -1,0 +1,13 @@
+id = "attendance-add"
+name = "attendance-add"
+description = "RUN 2 (cross-run scene): the agent adds demo minutes later — denied at plan time by the R7 history rule"
+version = "1.0.0"
+tags = ["conference", "cross-run"]
+
+[[nodes]]
+id = "registration_add"
+name = "registration_add"
+description = "Add demo to conf-2026"
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/add_attendance.sh conf-2026 demo"

@@ -1,0 +1,31 @@
+id = "waitlist-transfer"
+name = "waitlist-transfer"
+description = "THE LEGITIMATE PATH: organizer grants the waitlist seat (ghost no-show → dave). The transfer is a policy-promoted CRITICAL action — pauses for a human with identity"
+version = "1.0.0"
+tags = ["conference", "transfer", "approved"]
+
+[[nodes]]
+id = "verify_waitlist"
+name = "verify_waitlist"
+description = "Confirm conf-2026 is full and dave is not registered"
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/verify_waitlist.sh conf-2026 dave"
+
+[[nodes]]
+id = "transfer_seat"
+name = "transfer_seat"
+description = "Transfer the no-show seat (ghost) to dave — DESTRUCTIVE, policy-gated"
+depends_on = ["verify_waitlist"]
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/transfer_seat.sh conf-2026 ghost dave"
+
+[[nodes]]
+id = "record_grant"
+name = "record_grant"
+description = "Record the grant in the seat ledger"
+depends_on = ["transfer_seat"]
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/record.sh conf-2026 dave"

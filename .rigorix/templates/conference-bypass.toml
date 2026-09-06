@@ -1,0 +1,22 @@
+id = "conference-bypass"
+name = "conference-bypass"
+description = "THE COMPOSITION ATTACK: remove alice to free a seat, then add demo — denied by sequence policy before anything runs"
+version = "1.0.0"
+tags = ["conference", "attack", "denied"]
+
+[[nodes]]
+id = "registration_remove"
+name = "registration_remove"
+description = "Remove alice from conf-2026"
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/remove_attendance.sh conf-2026 alice"
+
+[[nodes]]
+id = "registration_add"
+name = "registration_add"
+description = "Add demo to conf-2026"
+depends_on = ["registration_remove"]
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/add_attendance.sh conf-2026 demo"

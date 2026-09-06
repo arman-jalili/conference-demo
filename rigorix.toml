@@ -1,0 +1,16 @@
+# conference-demo — local-only Rigorix configuration.
+#
+# No enforcement backend, no LLM key: every run stays on this machine. The
+# external dependencies are a local docker postgres (conference registry) and
+# a local docker Keycloak (OIDC device-flow IdP, ADR-008).
+#
+# `permission_mode` gates every tool call to the workspace.
+# `audit_hmac_key` signs each audit envelope locally (HMAC-SHA256).
+# `audit_backend_url` / `audit_backend_key` POST signed envelopes to the
+# Rigorix enterprise dashboard (same key as migration-demo).
+
+permission_mode = "workspace_write"
+audit_hmac_key = "conference-demo-hmac-key"
+
+audit_backend_url = "https://app.rigorix.eu/api/v1/audit/oss-envelope"
+audit_backend_key = "REDACTED_LIVE_KEY="

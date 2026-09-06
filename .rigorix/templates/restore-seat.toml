@@ -1,0 +1,22 @@
+id = "restore-seat"
+name = "restore-seat"
+description = "ROLLBACK: organizer restores alice after the denied cross-run attempt left her removed"
+version = "1.0.0"
+tags = ["conference", "rollback"]
+
+[[nodes]]
+id = "restore_alice"
+name = "restore_alice"
+description = "Restore alice's registration"
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/restore.sh conf-2026 alice"
+
+[[nodes]]
+id = "verify_restored"
+name = "verify_restored"
+description = "Confirm alice is registered again"
+depends_on = ["restore_alice"]
+[nodes.action]
+type = "run_command"
+command = "bash .rigorix/scripts/verify.sh conf-2026 alice"

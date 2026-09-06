@@ -1,0 +1,106 @@
+{
+  "e6627861-74ce-485a-b524-0cb8930e9f2a": {
+    "step_name": "transfer_seat",
+    "node_id": "e6627861-74ce-485a-b524-0cb8930e9f2a",
+    "intent_hash": "4bc81c92a18474ba4e3a90ec66cd1ec10f3d61c9dc134095f6b7b91620e091e1",
+    "intent_payload": {
+      "declared_scope": [],
+      "intent": {
+        "command": "bash .rigorix/scripts/transfer_seat.sh conf-2026 ghost dave"
+      },
+      "tool": "run_command"
+    },
+    "approver_id": "organizer@corp.demo",
+    "authority": "device-flow:http://127.0.0.1:8080/realms/rigorix",
+    "decided_at": "2026-09-06T14:40:58.752413Z",
+    "expires_at": "2026-09-06T15:40:58.752413Z",
+    "nonce": "4ae38151-075e-4ae4-b961-801fff5afa5a",
+    "token_claims_ref": "keycloak/rigorix-demo/organizer",
+    "status": "consumed",
+    "decision_context": {
+      "rendered_step": "(degraded)",
+      "upstream_evidence": null,
+      "state_snapshot": null,
+      "summary": "transfer_seat",
+      "full_payload": null
+    }
+  },
+  "e20387bc-0de6-4017-8733-5157bf882f0c": {
+    "step_name": "transfer_seat",
+    "node_id": "e20387bc-0de6-4017-8733-5157bf882f0c",
+    "intent_hash": "4bc81c92a18474ba4e3a90ec66cd1ec10f3d61c9dc134095f6b7b91620e091e1",
+    "intent_payload": {
+      "declared_scope": [],
+      "intent": {
+        "command": "bash .rigorix/scripts/transfer_seat.sh conf-2026 ghost dave"
+      },
+      "tool": "run_command"
+    },
+    "approver_id": "organizer@corp.demo",
+    "authority": "device-flow:http://127.0.0.1:8080/realms/rigorix",
+    "decided_at": "2026-09-06T14:46:44.202432Z",
+    "expires_at": "2026-09-06T15:46:44.202432Z",
+    "nonce": "9d466d97-50aa-4933-ba6b-0417e8654365",
+    "token_claims_ref": "keycloak/rigorix-demo/organizer",
+    "status": "consumed",
+    "decision_context": {
+      "rendered_step": "(degraded)",
+      "upstream_evidence": null,
+      "state_snapshot": null,
+      "summary": "transfer_seat",
+      "full_payload": null
+    }
+  },
+  "bcc97cf6-374e-47f9-9282-3c2842dfa6a5": {
+    "step_name": "transfer_seat",
+    "node_id": "bcc97cf6-374e-47f9-9282-3c2842dfa6a5",
+    "intent_hash": "4bc81c92a18474ba4e3a90ec66cd1ec10f3d61c9dc134095f6b7b91620e091e1",
+    "intent_payload": {
+      "declared_scope": [],
+      "intent": {
+        "command": "bash .rigorix/scripts/transfer_seat.sh conf-2026 ghost dave"
+      },
+      "tool": "run_command"
+    },
+    "approver_id": "organizer@corp.demo",
+    "authority": "device-flow:http://127.0.0.1:8080/realms/rigorix",
+    "decided_at": "2026-09-06T14:50:09.132438Z",
+    "expires_at": "2026-09-06T15:50:09.132438Z",
+    "nonce": "3f2d539c-1f6b-4041-9315-c945f516ff09",
+    "token_claims_ref": "keycloak/rigorix-demo/organizer",
+    "status": "consumed",
+    "decision_context": {
+      "rendered_step": "(degraded)",
+      "upstream_evidence": null,
+      "state_snapshot": null,
+      "summary": "transfer_seat",
+      "full_payload": null
+    }
+  },
+  "15e934dd-a308-4380-aca6-df0a7fdb4365": {
+    "step_name": "transfer_seat",
+    "node_id": "15e934dd-a308-4380-aca6-df0a7fdb4365",
+    "intent_hash": "4bc81c92a18474ba4e3a90ec66cd1ec10f3d61c9dc134095f6b7b91620e091e1",
+    "intent_payload": {
+      "declared_scope": [],
+      "intent": {
+        "command": "bash .rigorix/scripts/transfer_seat.sh conf-2026 ghost dave"
+      },
+      "tool": "run_command"
+    },
+    "approver_id": "organizer@corp.demo",
+    "authority": "device-flow:http://127.0.0.1:8080/realms/rigorix",
+    "decided_at": "2026-09-06T14:49:03.625818Z",
+    "expires_at": "2026-09-06T15:49:03.625818Z",
+    "nonce": "46f05885-cf7f-4e0e-b23e-eb33113c332e",
+    "token_claims_ref": "keycloak/rigorix-demo/organizer",
+    "status": "consumed",
+    "decision_context": {
+      "rendered_step": "(degraded)",
+      "upstream_evidence": null,
+      "state_snapshot": null,
+      "summary": "transfer_seat",
+      "full_payload": null
+    }
+  }
+}
