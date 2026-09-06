@@ -14,7 +14,10 @@ Start the stack (`docker compose up -d` + `bash .rigorix/setup-db.sh` +
 `bash .rigorix/setup-keycloak.sh`), then run `codex` in this directory and
 paste one of the session prompts in README.md ("Run it with an agent") —
 Session A exercises the blocked seat-grab (hook denial + R2/R7 refusal),
-Session B the legitimate transfer (policy-promoted pause + approval).
+Session A' the two-prompt R7 variant (delete runs, the follow-up add is
+refused at plan time from the signed history), Session B the legitimate
+transfer (policy-promoted pause + approval). Reset between sessions with
+`bash .rigorix/scripts/reset-demo.sh`.
 
 ## What the agent may do freely
 

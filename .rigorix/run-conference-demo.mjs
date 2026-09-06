@@ -224,12 +224,11 @@ const ORG = { username: "organizer", label: "The Organizer (conference operator)
 
 try {
   section("0 · Environment");
-  spawnSync("docker", ["compose", "up", "-d"], { cwd: repoRoot, encoding: "utf8", stdio: "ignore" });
-  spawnSync("bash", [".rigorix/scripts/setup-db.sh"], { cwd: repoRoot, encoding: "utf8", stdio: "ignore" });
-  spawnSync("bash", [".rigorix/setup-keycloak.sh"], { cwd: repoRoot, encoding: "utf8", stdio: "ignore" });
-  spawnSync("git", ["config", "user.email", "demo@corp\.demo"], { cwd: repoRoot });
-  spawnSync("git", ["config", "user.name", "Demo Operator"], { cwd: repoRoot });
-  console.log(`  conf-2026: ${seatCount()}/100 seats taken (FULL)`);
+  // reset-demo.sh: docker compose up + registry reseed (100/100) + cleared
+  // audit/approval/session state + Keycloak provisioning + git identity.
+  const reset = spawnSync("bash", [".rigorix/scripts/reset-demo.sh"], { cwd: repoRoot, encoding: "utf8", stdio: "ignore" });
+  if (reset.status !== 0) throw new Error("reset-demo.sh failed — see its output for why");
+  console.log(`  conf-2026: ${seatCount()}/100 seats taken (FULL) — reset complete`);
 
   // ══ THE AGENT PHASE — Claude Code / Codex on this repo ══════════════════
   section("1 · THE AGENT WORKS NORMALLY — code changes run freely");

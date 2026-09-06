@@ -37,8 +37,10 @@ TOKEN=$(curl -sf -X POST "$BASE/realms/master/protocol/openid-connect/token" \
 AUTH="Authorization: Bearer $TOKEN"
 JSON="Content-Type: application/json"
 
-# Realm (create tolerates 409 — already exists)
-if curl_retry -o /dev/null "$BASE/admin/realms/$REALM" -H "$AUTH"; then
+# Realm (create tolerates 409 — already exists). The existence GET is NOT
+# retried: a 404 after realm deletion is the expected signal to create.
+code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/admin/realms/$REALM" -H "$AUTH")
+if [ "$code" = "200" ]; then
   echo "realm $REALM exists"
 else
   code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/admin/realms" -H "$AUTH" -H "$JSON" \
@@ -80,7 +82,7 @@ for USER in demo organizer; do
   UID_=$(uid)
   if [ -z "$UID_" ]; then
     code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/admin/realms/$REALM/users" -H "$AUTH" -H "$JSON" \
-      -d "{\"username\":\"$USER\",\"enabled\":true,\"email\":\"$USER@corp.demo\",\"firstName\":\"$USER\",\"emailVerified\":true,\"requiredActions\":[]}")
+      -d "{\"username\":\"$USER\",\"enabled\":true,\"email\":\"$USER@corp.demo\",\"firstName\":\"$USER\",\"lastName\":\"$USER\",\"emailVerified\":true,\"requiredActions\":[]}")
     if [ "$code" != "201" ] && [ "$code" != "409" ]; then
       echo "user create failed: http=$code" >&2; exit 1
     fi
