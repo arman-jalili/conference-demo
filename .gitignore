@@ -4,3 +4,5 @@ node_modules/
 .rigorix/tmp/
 *.log
 .rigorix/approvals.json
+node_modules/
+dist/

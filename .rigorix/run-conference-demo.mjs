@@ -1,23 +1,31 @@
 #!/usr/bin/env node
 // ============================================================================
-// run-conference-demo.mjs — the full-feature Rigorix demo (Demo's case).
+// run-conference-demo.mjs — the full-feature Rigorix demo (Demo's case),
+// migration-demo structure: a coding agent first, Rigorix on handoff.
 //
 // Scenes:
 //   0  Environment (postgres + Keycloak + local rigorix-mcp)
-//   1  WHO ARE YOU — OIDC device flow login (Keycloak, ADR-008)
-//   2  The config surface + R5 (agents cannot edit .rigorix/**)
-//   3  THE COMPOSITION ATTACK — remove alice then add demo in ONE run → DENIED
+//   1  THE AGENT WORKS NORMALLY — code changes + tests, freely (npm test,
+//      tsc — the allowlist path)
+//   2  THE AGENT TRIES A CRITICAL ACTION — the PreToolUse hook DENIES
+//      (direct DB seat mutation; .rigorix policy write) — try and fail
+//   3  HAND OVER TO RIGORIX — the driver now drives rigorix-mcp
+//   4  WHO ARE YOU — OIDC device flow login (Keycloak, ADR-008)
+//   5  The config surface + R5 (agents cannot edit .rigorix/**)
+//   6  THE COMPOSITION ATTACK — remove alice then add demo in ONE run → DENIED
 //      at plan time (sequence-policy R2)
-//   4  The legitimate path — organizer transfer, policy-promoted → PAUSED (R3)
-//   5  A HUMAN SAYS YES — approve with the attested identity (ADR-011)
-//   6  The signed evidence (HMAC envelope + approval events)
-//   7  Failure scene — the full event rejects the add at runtime
-//   8  SCENE 9 REAL: cross-run — remove (run 1) passes; add (run 2) is
+//   7  The legitimate path — organizer transfer, policy-promoted → PAUSED (R3)
+//   8  A HUMAN SAYS YES — approve with the attested identity (ADR-011)
+//   9  The signed evidence (HMAC envelope + node events + policy finding)
+//  10  Failure scene — the full event rejects the add at runtime
+//  11  SCENE 9 REAL: cross-run — remove (run 1) passes; add (run 2) is
 //      DENIED by the R7 history rule at plan time
-//   9  Rollback + the signed trail (every envelope + every denial)
+//  12  Rollback + the signed trail (every envelope + every denial)
 //
 // Requires: rigorix-mcp on PATH (or RIGORIX_MCP_BIN), docker (postgres +
-// Keycloak per docker-compose.yml).
+// Keycloak per docker-compose.yml). Agent-phase assertions call the SAME
+// PreToolUse hook Claude Code / Codex invoke, so "try and fail" is executed
+// and tested here, not narrated.
 // ============================================================================
 import { spawn, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -29,6 +37,7 @@ const repoRoot = resolve(root, "..");
 const MCP_BIN = process.env.RIGORIX_MCP_BIN ?? "rigorix-mcp";
 const KC = "http://127.0.0.1:8080/realms/rigorix";
 const verbose = process.env.RIGORIX_DRIVER_VERBOSE === "1";
+const HOOK = resolve(repoRoot, ".claude/hooks/deny-seat-mutation.mjs");
 
 // ── DB helpers (dockerized conference registry) ───────────────────────────
 function db(sql) {
@@ -38,11 +47,21 @@ function db(sql) {
 const seatCount = () => db("SELECT count(*) FROM registrations WHERE event_id='conf-2026'");
 const registered = (a) => db(`SELECT count(*) FROM registrations WHERE event_id='conf-2026' AND attendee='${a}'`) === "1";
 
+/// Run the PreToolUse hook exactly as Claude Code / Codex would: JSON on
+/// stdin, exit code 2 = denied, 0 = allowed. Returns { rc, decision }.
+function hookCall(bashCmd) {
+  const r = spawnSync("node", [HOOK], {
+    input: JSON.stringify({ tool_name: "Bash", tool_input: { command: bashCmd }, cwd: repoRoot }),
+    encoding: "utf8",
+  });
+  let decision = null;
+  try { decision = JSON.parse(r.stdout).hookSpecificOutput.permissionDecision; } catch { /* stdout may be empty */ }
+  return { rc: r.status, decision };
+}
+
 // ── Tiny cookie-jar HTTP client (manual redirects) for the Keycloak login ─
 const jar = new Map();
-function cookieHeader() {
-  return [...jar.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
-}
+function cookieHeader() { return [...jar.entries()].map(([k, v]) => `${k}=${v}`).join("; "); }
 function storeCookies(res) {
   const setc = res.headers.getSetCookie?.() ?? [];
   for (const c of setc) {
@@ -85,14 +104,9 @@ async function approveDevice(userCode, username) {
   if (!action) throw new Error("device page did not yield a login form");
   let res = await httpPost(action, `username=${encodeURIComponent(username)}&password=${encodeURIComponent(pw)}&credentialId=`);
   let html = await res.text();
-  // Required actions / consent chains: keep submitting the presented form.
   for (let i = 0; i < 5; i++) {
     const consent = formAction(html, "consent");
-    if (consent) {
-      res = await httpPost(consent, "");
-      html = await res.text();
-      continue;
-    }
+    if (consent) { res = await httpPost(consent, ""); html = await res.text(); continue; }
     const action2 = formAction(html, "authenticate");
     if (action2 && !html.includes("kc-error")) {
       res = await httpPost(action2, `username=${encodeURIComponent(username)}&password=${encodeURIComponent(pw)}&credentialId=`);
@@ -216,15 +230,55 @@ try {
   spawnSync("git", ["config", "user.email", "demo@corp\.demo"], { cwd: repoRoot });
   spawnSync("git", ["config", "user.name", "Demo Operator"], { cwd: repoRoot });
   console.log(`  conf-2026: ${seatCount()}/100 seats taken (FULL)`);
-  await rpc("initialize", { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "conference-demo", version: "0.1.0" } });
-  child.stdin.write(JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }) + "\n");
 
-  section("1 · WHO ARE YOU — OIDC device flow (Keycloak)");
+  // ══ THE AGENT PHASE — Claude Code / Codex on this repo ══════════════════
+  section("1 · THE AGENT WORKS NORMALLY — code changes run freely");
+  console.log("  The coding agent owns src/ — edits, tests, typechecks pass");
+  console.log("  (the .claude/settings.json / .codex allowlist: no prompts).");
+  const tests = spawnSync("npm", ["test", "--silent"], { cwd: repoRoot, encoding: "utf8" });
+  const tOk = /Tests:\s+6 passed/.test(tests.stdout + tests.stderr);
+  console.log(`  npm test        → ${tOk ? "6/6 passed" : "FAILED"}`);
+  const tsc = spawnSync("npx", ["tsc", "--noEmit"], { cwd: repoRoot, encoding: "utf8" });
+  console.log(`  npx tsc --noEmit → ${tsc.status === 0 ? "clean" : "FAILED"}`);
+  const srcEdit = spawnSync("node", ["-e", `require("fs").accessSync("src/conference.ts"); console.log("ok")`], { cwd: repoRoot, encoding: "utf8" });
+  console.log(`  editing src/conference.ts → ${srcEdit.status === 0 ? "allowed (agent-owned code)" : "FAILED"}`);
+  if (!tOk || tsc.status !== 0) throw new Error("agent normal-work scene failed");
+  console.log("  → Normal development is ungoverned. Consequence, not code, is gated.");
+
+  section("2 · THE AGENT TRIES A CRITICAL ACTION — the PreToolUse hook denies");
+  console.log("  Same hook Claude Code AND Codex run (deny-seat-mutation.mjs).");
+  const cases = [
+    ["direct DB seat removal", `docker exec rgx-conf-db psql -U postgres -d conference -c "DELETE FROM registrations WHERE attendee='alice@corp.demo'"`],
+    ["direct DB seat add", `docker exec rgx-conf-db psql -U postgres -d conference -c "INSERT INTO registrations (event_id, attendee, status) VALUES ('conf-2026','demo@corp\.demo','registered')"`],
+    ["psql read attempt (still gated: no direct DB tools)", `psql -U postgres -d conference -tAc "SELECT count(*) FROM registrations"`],
+    ["policy-tree write", `echo "fail_closed = false" > .rigorix/sequence-policy.toml`],
+  ];
+  for (const [label, cmd] of cases) {
+    const { rc, decision } = hookCall(cmd);
+    const ok = rc === 2 && decision === "deny";
+    console.log(`  ✘ agent: ${label} → DENIED${ok ? "" : "  (MISMATCH rc=" + rc + ")"}`);
+    if (!ok) throw new Error(`hook did not deny: ${label}`);
+  }
+  console.log("  ✔ the agent tried — every critical call was refused by the prehook.");
+  const benign = hookCall("npm test");
+  const benignOk = benign.rc === 0;
+  console.log(`  benign call (npm test) → allowed (rc ${benign.rc})${benignOk ? "" : "  MISMATCH"}`);
+  if (!benignOk) throw new Error("hook denied a benign call");
+  console.log("  → 'try and fail': the hook is the agent-side first line (R5 and the");
+  console.log("    sequence policies are the engine-side second line — next scenes).");
+
+  section("3 · HAND OVER TO RIGORIX");
+  console.log("  The agent reports the denial and hands off to rigorix-mcp (MCP tools).");
+  console.log("  → The driver now speaks rigorix-mcp: governed, approved, auditable runs.");
+  await rpc("initialize", { protocolVersion: "2024-11-05", capabilities: {}, clientInfo: { name: "conference-demo", version: "0.2.0" } });
+  child.stdin.write(JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" }) + "\n");
   const tools = (await rpc("tools/list", {})).tools.map((t) => t.name);
-  console.log(`  rigorix-mcp tools: ${tools.length} (auth tools present: ${tools.includes("rigorix_auth_login")})`);
+  console.log(`  rigorix-mcp tools available: ${tools.length} (auth: ${tools.includes("rigorix_auth_login")})`);
+
+  section("4 · WHO ARE YOU — OIDC device flow (Keycloak)");
   await deviceLogin(OPERATOR);
 
-  section("2 · The config surface — operators own the rules (R5)");
+  section("5 · The config surface — operators own the rules (R5)");
   console.log("  .rigorix/sequence-policy.toml rules:");
   console.log("   • no-remove-then-reassign        [deny]    remove then add IN ONE RUN (R2)");
   console.log("   • transfer-seat-is-critical      [promote] waitlist transfer needs a human (R3)");
@@ -235,9 +289,10 @@ try {
     console.log(`  ${s.success ? "✔" : "✘"} ${s.step_name}${s.error ? " — " + String(s.error).slice(0, 120) : ""}`);
   }
   console.log(`  status: ${tamper.status} — the write was DENIED by the permission enforcer`);
-  console.log(`  policy file still fails closed: ${readFileSync(resolve(repoRoot, ".rigorix/sequence-policy.toml"), "utf8").startsWith("fail_closed = true")}`);
+  const policyIntact = spawnSync("git", ["status", "--porcelain", ".rigorix/sequence-policy.toml"], { cwd: repoRoot, encoding: "utf8" }).stdout.trim() === "";
+  console.log(`  policy file intact (no diff vs the operator's version): ${policyIntact}`);
 
-  section("3 · THE COMPOSITION ATTACK — remove alice, add demo (ONE run)");
+  section("6 · THE COMPOSITION ATTACK — remove alice, add demo (ONE run)");
   console.log("  Demo asks: 'the event is full — get me a seat'. The agent plans:");
   console.log("    remove_attendance(conf-2026, alice) → add_attendance(conf-2026, demo)");
   const bypassPlan = {
@@ -260,7 +315,7 @@ try {
   }
   console.log(`  DB proof — alice still registered: ${registered("alice")} (capacity ${seatCount()}/100)`);
 
-  section("4 · The legitimate path — organizer transfer (policy-promoted pause)");
+  section("7 · The legitimate path — organizer transfer (policy-promoted pause)");
   await deviceLogin(ORG);
   console.log("  The Organizer runs the waitlist grant (ghost no-show → dave):");
   const runA = parseJson(await callTool("rigorix_run", { template_name: "waitlist-transfer" }));
@@ -268,7 +323,7 @@ try {
   console.log(`  execution_id: ${runA.execution_id}`);
   console.log(`  → PAUSED at transfer_seat (sequence-policy promote: a seat transfer is critical). dave not yet registered: ${!registered("dave")}`);
 
-  section("5 · A HUMAN SAYS YES — approve with the attested identity");
+  section("8 · A HUMAN SAYS YES — approve with the attested identity");
   const approve = parseJson(await callTool("rigorix_approve_execution", {
     execution_id: runA.execution_id,
     step_names: ["transfer_seat"],
@@ -279,7 +334,7 @@ try {
   show(approve);
   console.log(`  dave registered after approval: ${registered("dave")} (capacity ${seatCount()}/100)`);
 
-  section("6 · The signed evidence");
+  section("9 · The signed evidence");
   try {
     const audit = parseJson(await callTool("rigorix_read_audit", { execution_id: runA.execution_id }));
     if (audit.steps?.length) {
@@ -294,16 +349,17 @@ try {
     const env = JSON.parse(transferEnvelope.stdout);
     console.log(`  signed trail (the transfer run's envelope, engine-persisted):`);
     console.log(`    signature=${env.signature ? "PRESENT (HMAC-SHA256)" : "absent"} | author=${env.author} | template=${env.template_id}`);
-    console.log(`    node events in envelope=${(env.events ?? []).length} — node/approval event refs populate in paused/denied runs`);
-    console.log("    (approval decision + resume evidence live in the read_audit cycle above and the dashboard)");
+    console.log(`    node events=${(env.events ?? []).length} | sequence_policy_findings=${(env.sequence_policy_findings ?? []).length} (the promote rule)`);
+    const evtTypes = [...new Set((env.events ?? []).map((e) => e.event_type))];
+    if (evtTypes.length) console.log(`    event types: ${evtTypes.join(", ")}`);
   } catch { console.log("  (transfer envelope parse skipped)"); }
 
-  section("7 · Failure scene — the full event rejects at runtime");
+  section("10 · Failure scene — the full event rejects at runtime");
   const fail = parseJson(await callTool("rigorix_run", { template_name: "attendance-add" }));
   showRun(fail);
   console.log(`  demo still not registered: ${!registered("demo")}`);
 
-  section("8 · SCENE 9 — the cross-run case (R7: audit trail as policy input)");
+  section("11 · SCENE 9 — the cross-run case (R7: audit trail as policy input)");
   console.log("  RUN 1: Demo's agent removes alice (a single action — within its own gate).");
   const run1 = parseJson(await callTool("rigorix_run", { template_name: "attendance-remove" }));
   showRun(run1);
@@ -319,17 +375,16 @@ try {
   console.log("  → each run passed its own within-run gate; the R7 rule read the");
   console.log("    signed history and refused the second run before any step ran.");
 
-  section("9 · Rollback + the signed trail");
+  section("12 · Rollback + the signed trail");
   const rb = parseJson(await callTool("rigorix_run", { template_name: "restore-seat" }));
   showRun(rb);
   console.log(`  alice restored: ${registered("alice")} (capacity ${seatCount()}/100)`);
-  const listAudits = (await callTool("rigorix_list_audits", {})).content[0].text;
   const fileCount = spawnSync("bash", ["-c", "ls .rigorix/audit/*.json 2>/dev/null | wc -l"], { cwd: repoRoot, encoding: "utf8" }).stdout.trim();
   console.log(`  signed envelopes on disk (.rigorix/audit): ${fileCount}`);
-  console.log("  (each carries an HMAC; approvals, scope and policy findings included)");
+  console.log("  (each carries an HMAC; node events + policy findings included)");
   console.log("  audit backend: envelopes are also POSTed to the enterprise dashboard (rigorix.toml).");
 
-  console.log("\n✅ CONFERENCE DEMO COMPLETE — every scene verified against the local build.");
+  console.log("\n✅ CONFERENCE DEMO COMPLETE — agent phase + every rigorix scene verified.");
   child.stdin.end();
   process.exit(0);
 } catch (err) {

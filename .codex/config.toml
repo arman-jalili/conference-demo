@@ -1,0 +1,37 @@
+# conference-demo — Codex configuration (project-scoped).
+#
+# This is the Codex counterpart of the Claude Code setup:
+#   - .mcp.json                     -> [mcp_servers.rigorix-mcp]
+#   - .claude/settings.json hook    -> [[hooks.PreToolUse]]
+#   - .claude/settings.json         -> approval_policy (allowlist behavior)
+#
+# Project-scoped config only loads when the project is trusted. The
+# enforcement boundary is the PreToolUse hook below, not approval prompts.
+
+# Mirrors the Claude Code permission allowlist: Bash runs without per-command
+# prompts and the PreToolUse hook is the gatekeeper for DB-tool invocation.
+approval_policy = "never"
+
+[mcp_servers.rigorix-mcp]
+command = "rigorix-mcp"
+args = []
+# Resolved from PATH (or RIGORIX_MCP_BIN for the unreleased local build),
+# like .mcp.json does for Claude Code. The stdio server inherits the session
+# working directory, so runbook steps (relative to rigorix.toml) resolve
+# correctly when Codex runs from the repo root.
+# Auto-approve Rigorix tool calls: rigorix-mcp's tools carry no read-only
+# annotations, so Codex's default `auto` mode treats them as needing approval
+# when the permission profile is managed, and `approval_policy = "never"`
+# auto-rejects that approval ("user cancelled MCP tool call"). `approve`
+# pre-approves the tool call so it always runs. The human approval surface is
+# the runbook's requires_approval step (the seat transfer), not the MCP call.
+default_tools_approval_mode = "approve"
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "node .claude/hooks/deny-seat-mutation.mjs"
+timeout = 5
+blocking = true
