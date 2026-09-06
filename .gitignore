@@ -3,3 +3,4 @@ node_modules/
 .rigorix/audit/
 .rigorix/tmp/
 *.log
+.rigorix/approvals.json
