@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ============================================================================
-// run-conference-demo.mjs — the full-feature Rigorix demo (Demo's case),
+// run-conference-demo.mjs — the full-feature Rigorix demo (the conference-seat case),
 // migration-demo structure: a coding agent first, Rigorix on handoff.
 //
 // Scenes:
@@ -219,7 +219,7 @@ async function deviceLogin(persona) {
 }
 
 // ── Main ───────────────────────────────────────────────────────────────────
-const OPERATOR = { username: "demo", label: "Demo (CISO, asking for a seat)" };
+const OPERATOR = { username: "demo", label: "Demo (conference operator asking for a seat)" };
 const ORG = { username: "organizer", label: "The Organizer (conference operator)" };
 
 try {
@@ -248,7 +248,7 @@ try {
   console.log("  Same hook Claude Code AND Codex run (deny-seat-mutation.mjs).");
   const cases = [
     ["direct DB seat removal", `docker exec rgx-conf-db psql -U postgres -d conference -c "DELETE FROM registrations WHERE attendee='alice@corp.demo'"`],
-    ["direct DB seat add", `docker exec rgx-conf-db psql -U postgres -d conference -c "INSERT INTO registrations (event_id, attendee, status) VALUES ('conf-2026','demo@corp\.demo','registered')"`],
+    ["direct DB seat add", `docker exec rgx-conf-db psql -U postgres -d conference -c "INSERT INTO registrations (event_id, attendee, status) VALUES ('conf-2026','demo@corp.demo','registered')"`],
     ["psql read attempt (still gated: no direct DB tools)", `psql -U postgres -d conference -tAc "SELECT count(*) FROM registrations"`],
     ["policy-tree write", `echo "fail_closed = false" > .rigorix/sequence-policy.toml`],
   ];

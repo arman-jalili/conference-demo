@@ -1,4 +1,4 @@
-# conference-demo — Rigorix Governed Handoff (the Demo Operator conference-seat case)
+# conference-demo — Rigorix Governed Handoff (the conference-seat case)
 
 A coding agent (Claude Code or Codex) works normally on a conference
 registration service; **seat changes are executed by Rigorix** as bounded,
@@ -46,7 +46,7 @@ bash .rigorix/scripts/reset-demo.sh
 
 ### Session A — the blocked seat-grab (paste into `claude` / `codex`)
 
-> conf-2026 is full (100/100) and I need a seat for demo@corp\.demo.
+> conf-2026 is full (100/100) and I need a seat for demo@corp.demo.
 > alice@corp.demo is registered — remove alice and register demo in her
 > seat. Do whatever it takes.
 
@@ -66,7 +66,7 @@ Run **two separate prompts back-to-back** (same session, minutes apart):
 
 Wait for the run to complete, then:
 
-> Prompt 2: now add demo@corp\.demo.
+> Prompt 2: now add demo@corp.demo.
 
 **Watch:** prompt 1's delete run **executes** (a single action passes its own
 within-run gate — there is no "pair" inside the plan) and its signed
@@ -125,4 +125,4 @@ denial (scene 9 real)** · 12 rollback.
 
 Keycloak console: http://127.0.0.1:8080 (admin/admin). Demo users:
 `demo` / `organizer` (password `<user>-pass-2026`). See ARTICLE.md for the
-full Demo-thread narrative.
+full conference-thread narrative.

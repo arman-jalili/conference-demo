@@ -61,7 +61,7 @@ export function find(conf: ConferenceState, email: string): Registration | undef
 }
 
 /**
- * The remove-then-reassign pattern — the abuse in Demo Operator' conference
+ * The remove-then-reassign pattern — the abuse in the conference-seat case
  * seat case (2026-09-03). Each individual action passes every per-action
  * gate; the PAIR is the problem. Rigorix encodes this as a sequence policy:
  * the composition is refused at plan time (R2) and, across runs, refused

@@ -1,6 +1,6 @@
 # Rigorix Governed Handoff — the conference-seat case, from post to production demo
 
-**The Demo Operator thread (2026-09-03).** A conference operator posts a
+**The conference-seat thread (2026-09-03).** A conference operator posts a
 growing concern about agents and conference seats: an autonomous agent that
 can touch the registration system could "remove an attendee and register
 itself in the freed slot" — two individually-permitted actions whose pair is

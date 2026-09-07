@@ -25,7 +25,7 @@ function confWith(regs: ConferenceState["registrations"]): ConferenceState {
 
 describe("conference registration invariants", () => {
   test("a full conference refuses new registrations", () => {
-    expect(canRegister(conf101(), "demo@corp\.demo")).toBe(false);
+    expect(canRegister(conf101(), "demo@corp.demo")).toBe(false);
   });
 
   test("a freed seat accepts the waitlist entrant", () => {
@@ -41,7 +41,7 @@ describe("conference registration invariants", () => {
 
   test("remove-then-reassign of a live attendee is the abuse pattern", () => {
     const conf = conf101();
-    const plan = planReassign(conf, "alice@corp.demo", "demo@corp\.demo", "Demo");
+    const plan = planReassign(conf, "alice@corp.demo", "demo@corp.demo", "Demo");
     // The plan is honest about what it would do; whether it RUNS is the
     // sequence-policy decision (denied when the remove is not a genuine
     // no-show — see .rigorix/sequence-policy.toml and the R7 scene).
@@ -60,7 +60,7 @@ describe("conference registration invariants", () => {
     expect(countRegistered(conf)).toBe(1);
     const after = { ...conf, registrations: [{ email: "alice@corp.demo", name: "Alice", status: "removed" as const }] };
     expect(countRegistered(after)).toBe(0);
-    expect(canRegister(after, "demo@corp\.demo")).toBe(true);
+    expect(canRegister(after, "demo@corp.demo")).toBe(true);
   });
 
   test("transfer off the waitlist keeps capacity at 100", () => {

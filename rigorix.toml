@@ -4,13 +4,15 @@
 # external dependencies are a local docker postgres (conference registry) and
 # a local docker Keycloak (OIDC device-flow IdP, ADR-008).
 #
-# `permission_mode` gates every tool call to the workspace.
 # `audit_hmac_key` signs each audit envelope locally (HMAC-SHA256).
 # `audit_backend_url` / `audit_backend_key` POST signed envelopes to the
-# Rigorix enterprise dashboard (same key as migration-demo).
+# Rigorix dashboard. The live backend key is intentionally NOT committed in
+# this public repo — set them in your local environment to enable posting
+# (e.g. via RIGORIX_AUDIT_BACKEND_URL / RIGORIX_AUDIT_BACKEND_KEY, or by
+# uncommenting with your own key). Without them every run stays local.
 
 permission_mode = "workspace_write"
 audit_hmac_key = "conference-demo-hmac-key"
 
-audit_backend_url = "https://app.rigorix.eu/api/v1/audit/oss-envelope"
-audit_backend_key = "REDACTED_LIVE_KEY="
+# audit_backend_url = "https://app.rigorix.eu/api/v1/audit/oss-envelope"
+# audit_backend_key = "<your-own-key>"

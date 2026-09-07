@@ -27,7 +27,7 @@ echo "── 4/5 Keycloak provisioning (idempotent; demo + organizer device flow
 bash .rigorix/setup-keycloak.sh >/dev/null
 
 echo "── 5/5 git identity (signed runs carry the demo principal)"
-git config user.email demo@corp\.demo
+git config user.email demo@corp.demo
 git config user.name "Demo Operator"
 
 echo "✅ demo reset — conf-2026 FULL (alice + ghost + 98 fillers), trail cleared, Keycloak ready."
