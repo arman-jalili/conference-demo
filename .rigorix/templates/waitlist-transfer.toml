@@ -16,6 +16,7 @@ command = "bash .rigorix/scripts/verify_waitlist.sh conf-2026 dave"
 id = "transfer_seat"
 name = "transfer_seat"
 description = "Transfer the no-show seat (ghost) to dave — DESTRUCTIVE, policy-gated"
+require_identity = true   # L1 identity gate (rigorix-oss F-20260907-05) — caller must present an attested claim or the run is refused at plan time. Inert until the engine honors it.
 depends_on = ["verify_waitlist"]
 [nodes.action]
 type = "run_command"

@@ -8,6 +8,7 @@ tags = ["conference", "rollback"]
 id = "restore_alice"
 name = "restore_alice"
 description = "Restore alice's registration"
+require_identity = true   # L1 identity gate (rigorix-oss F-20260907-05) — caller must present an attested claim or the run is refused at plan time. Inert until the engine honors it.
 [nodes.action]
 type = "run_command"
 command = "bash .rigorix/scripts/restore.sh conf-2026 alice"

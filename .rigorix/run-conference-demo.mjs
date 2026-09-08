@@ -210,6 +210,11 @@ async function deviceLogin(persona) {
     const st = parseJson(await callTool("rigorix_auth_status", {}));
     const okStatus = ["logged_in", "Authenticated", "authenticated"].includes(st.status);
     if (okStatus) {
+      if (!st.claim_summary && !st.claim) {
+        throw new Error(
+          "login completed but no identity claim attached — R7/identity gates have no principal to bind. Aborting (this is the unauthenticated-bypass mode we guard against)."
+        );
+      }
       console.log(`  status: ${st.status}`);
       if (st.claim_summary) console.log(`  claim_summary: ${JSON.stringify(st.claim_summary)}`);
       return st;
@@ -360,6 +365,13 @@ try {
 
   section("11 · SCENE 9 — the cross-run case (R7: audit trail as policy input)");
   console.log("  RUN 1: Demo's agent removes alice (a single action — within its own gate).");
+  const preR7 = parseJson(await callTool("rigorix_auth_status", {}));
+  if (!preR7.claim_summary && !preR7.claim) {
+    throw new Error(
+      "scene 11 requires an active attested session — R7 (no-cross-run-remove-reassign, same_principal=true) can only bind runs to an attested principal. Run rigorix_auth_login first (the live unauthenticated session is exactly the bypass this guard stops)."
+    );
+  }
+  console.log(`  R7 principal armed: ${JSON.stringify(preR7.claim_summary ?? preR7.claim)}`);
   const run1 = parseJson(await callTool("rigorix_run", { template_name: "attendance-remove" }));
   showRun(run1);
   console.log(`  alice removed: ${!registered("alice")} — capacity ${seatCount()}/100. Envelope persisted.`);

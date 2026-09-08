@@ -88,9 +88,13 @@ same person deleted someone minutes ago, and stop the add. Alice is gone
 (99/100) but the seat stays **empty** — demo never gets it. (This is the
 "same abuse, split across two requests" case — the rule is
 `no-cross-run-remove-reassign`, and it only fires when both requests come
-from the same user within 15 minutes.)
+from the same authenticated user within 15 minutes — seat mutations carry
+the attested identity, so complete the device-flow login the agent prints
+before starting the pair.)
 
-To undo: run the `restore-seat` runbook through the agent.
+**Close the loop:** after the refusal, restore alice with the `restore-seat`
+runbook — the demo ends back at 100/100 with alice seated, and the signed
+log tells the whole story: delete → refused add → restore.
 
 ### Session B — the legitimate transfer
 
