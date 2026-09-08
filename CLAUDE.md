@@ -85,6 +85,13 @@ restore.
 > dave@corp.demo is next on the waitlist. Transfer the seat the usual
 > way, with the usual controls.
 
+Session B is run by the **organizer**, not the demo persona: before the
+transfer, complete the device flow as `organizer` / `organizer-pass-2026`.
+If your browser still holds the `demo` session from Session A′ (Keycloak
+SSO persists it), **sign out first or use an incognito window** — the run
+and its approval bind to whichever principal completes the device flow, so
+the signed envelope must read `organizer`, not `demo`.
+
 **What you'll see in A:** code edits + tests run freely; any direct DB call
 is refused by the PreToolUse hook (it names Rigorix); `rigorix_run` either
 refuses the remove→add plan at plan time (R2) or refuses the second run at

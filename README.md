@@ -104,11 +104,14 @@ log tells the whole story: delete → refused add → restore.
 
 **What you'll see:** this one is *allowed* — but because moving a seat is
 consequential, the run **pauses** and asks a human to approve it. The agent
-asks you; you say "approve it"; the agent submits the approval (you can log
-in as `organizer` first for a verifiable identity — open the link it prints,
-sign in, click ALLOW). The run resumes, dave is registered, and the signed
-record lands in the log. This is the difference between *blocking everything*
-and *governing what matters*.
+asks you; you say "approve it"; the agent submits the approval. **Run this
+session as the `organizer`** (complete the device flow with `organizer` /
+`organizer-pass-2026` — if your browser still holds the `demo` session from
+Session A′, sign out first or use an incognito window, since the approval
+binds to whichever principal completes the flow). The run resumes, dave is
+registered, and the signed record lands in the log bound to the organizer's
+identity. This is the difference between *blocking everything* and
+*governing what matters*.
 
 ## Automated proof — no agent needed
 
