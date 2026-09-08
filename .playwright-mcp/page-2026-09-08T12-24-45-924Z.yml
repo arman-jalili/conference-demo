@@ -1,0 +1,16 @@
+- generic [ref=e2]:
+  - generic [ref=e3]: rigorix
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - heading [level=1] [ref=e7]:
+        - paragraph [ref=e8]: Grant Access to rigorix-demo
+    - generic [ref=e11]:
+      - heading "Do you grant these access privileges?" [level=3] [ref=e12]
+      - list [ref=e13]:
+        - listitem [ref=e14]: Offline Access
+        - listitem [ref=e15]: User roles
+        - listitem [ref=e16]: Email address
+        - listitem [ref=e17]: User profile
+      - generic [ref=e21]:
+        - button "Yes" [ref=e22] [cursor=pointer]
+        - button "No" [ref=e23] [cursor=pointer]

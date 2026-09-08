@@ -376,11 +376,25 @@ try {
   showRun(run1);
   console.log(`  alice removed: ${!registered("alice")} — capacity ${seatCount()}/100. Envelope persisted.`);
   console.log("  RUN 2 (minutes later): the agent tries to add demo.");
+  let run2Denied = false;
   try {
     await callTool("rigorix_run", { template_name: "attendance-add" });
     console.log("  ⚠ run 2 unexpectedly executed");
   } catch (e) {
+    run2Denied = true;
     console.log("  rigorix_run → DENIED AT PLAN TIME: " + String(e.message).slice(0, 200));
+  }
+  if (run2Denied && registered("demo")) {
+    throw new Error("R7 scene inconsistent: run 2 reported denied but demo is registered");
+  }
+  if (!run2Denied) {
+    // Hard assert — the R7 cross-run deny is the scene's core claim. A soft
+    // print allowed a silent false-pass when the signed local trail wasn't
+    // persisted (audit enabled coupling bug, 2026-09-08).
+    throw new Error(
+      "R7 FAILED — run 2 (attendance-add) executed: demo@corp.demo is seated and alice is evicted. " +
+        "Check that signed envelopes land in .rigorix/audit (local trail persistence independent of audit_backend_url)."
+    );
   }
   console.log(`  DB proof: alice removed (${seatCount()}/100) but demo NOT added: ${!registered("demo")}`);
   console.log("  → each run passed its own within-run gate; the R7 rule read the");
