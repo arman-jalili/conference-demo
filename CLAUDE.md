@@ -37,8 +37,9 @@ When a task requires a seat change, use the Rigorix MCP tools instead:
    for the transfer. The user (or the agent, on explicit instruction) calls
    `rigorix_approve_execution` with `execution_id` and the pending step name.
 3. After resume, confirm the run completed and the registry changed.
-4. Every run produces a signed audit envelope (`.rigorix/audit`) and is
-   POSTed to the enterprise dashboard.
+4. Every run produces a signed audit envelope (`.rigorix/audit`). Envelopes
+   stay LOCAL unless `audit_backend_url` / `audit_backend_key` are set in
+   rigorix.toml (this public repo intentionally configures no backend key).
 
 ## The abuse this repo guards (the conference-seat case, 2026-09-03)
 
@@ -100,7 +101,7 @@ does not undo the earlier remove — alice stays out until you restore her
 (that is the loop-closure step above). **In B:** `waitlist-transfer` pauses
 at `transfer_seat` (policy-promoted), you approve (optionally via a device-
 flow `rigorix_auth_login` as `organizer`), the run resumes, and a signed
-envelope lands in `.rigorix/audit` + the dashboard. Full prompt blocks
+envelope lands in `.rigorix/audit`. Full prompt blocks
 with watch-notes live in README.md; the automated scene-by-scene proof is:
 
 ```bash

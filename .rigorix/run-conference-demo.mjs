@@ -414,7 +414,8 @@ try {
   const fileCount = spawnSync("bash", ["-c", "ls .rigorix/audit/*.json 2>/dev/null | wc -l"], { cwd: repoRoot, encoding: "utf8" }).stdout.trim();
   console.log(`  signed envelopes on disk (.rigorix/audit): ${fileCount}`);
   console.log("  (each carries an HMAC; node events + policy findings included)");
-  console.log("  audit backend: envelopes are also POSTed to the enterprise dashboard (rigorix.toml).");
+  console.log("  audit delivery: envelopes stay LOCAL (this public repo configures no backend key);");
+  console.log("  add audit_backend_url / audit_backend_key to rigorix.toml to POST them to the enterprise dashboard.");
 
   console.log("\n✅ CONFERENCE DEMO COMPLETE — agent phase + every rigorix scene verified.");
   child.stdin.end();

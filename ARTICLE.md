@@ -44,8 +44,10 @@ One agent session on one repo shows the whole arc:
      the trail to evade the rule breaks the signature.
 
 4. **Everything is signed.** Every runbook persists an HMAC-SHA256 envelope
-   to `.rigorix/audit` and POSTs to the enterprise dashboard: author,
-   template, per-node events, sequence-policy findings, approval evidence.
+   to `.rigorix/audit` — a local signed trail (author, template, per-node
+   events, sequence-policy findings, approval evidence). Posting to the
+   enterprise dashboard is opt-in via rigorix.toml backend keys; this public
+   repo ships local-only so the HMAC trail is verifiable anywhere.
 
 ## What is real here
 
