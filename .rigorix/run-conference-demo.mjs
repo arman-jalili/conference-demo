@@ -331,9 +331,9 @@ try {
   const approve = parseJson(await callTool("rigorix_approve_execution", {
     execution_id: runA.execution_id,
     step_names: ["transfer_seat"],
-    approver_id: "organizer@corp.demo",
-    authority: `device-flow:${KC}`,
-    token_claims_ref: "keycloak/rigorix-demo/organizer",
+    // L2 (F-20260907-05): the approval binds to the ATTESTED session
+    // identity (the organizer's device-flow claim) — caller-supplied
+    // approver_id / token_claims_ref are ignored by the server.
   }));
   show(approve);
   console.log(`  dave registered after approval: ${registered("dave")} (capacity ${seatCount()}/100)`);
