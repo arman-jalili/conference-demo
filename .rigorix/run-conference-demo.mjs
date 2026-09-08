@@ -356,6 +356,13 @@ try {
     console.log(`    node events=${(env.events ?? []).length} | sequence_policy_findings=${(env.sequence_policy_findings ?? []).length} (the promote rule)`);
     const evtTypes = [...new Set((env.events ?? []).map((e) => e.event_type))];
     if (evtTypes.length) console.log(`    event types: ${evtTypes.join(", ")}`);
+    // The on-disk envelope must reflect the COMPLETED run (post-approval
+    // re-dispatch) — a pause-point snapshot would miss transfer_seat.
+    const stepNames = new Set((env.events ?? []).map((e) => (e.payload ?? {}).step_name).filter(Boolean));
+    if (!stepNames.has("transfer_seat")) {
+      throw new Error(`transfer envelope missing the approved step (pause snapshot on disk?): steps=${[...stepNames].join(",")}`);
+    }
+    console.log(`    approved step visible on disk: transfer_seat`);
   } catch { console.log("  (transfer envelope parse skipped)"); }
 
   section("10 · Failure scene — the full event rejects at runtime");
