@@ -27,6 +27,16 @@ args = []
 # the runbook's requires_approval step (the seat transfer), not the MCP call.
 default_tools_approval_mode = "approve"
 
+# The demo IdP env — REQUIRED for the auth tools. rigorix-mcp registers
+# rigorix_auth_login/status/logout only when an IdP is configured; without
+# these, Codex sees no auth tools and the L1 identity gate refuses seat
+# mutations. Claude Code reads the same values from .mcp.json.
+[mcp_servers.rigorix-mcp.env]
+RIGORIX_IDP_ISSUER = "http://127.0.0.1:8080/realms/rigorix"
+RIGORIX_IDP_CLIENT_ID = "rigorix-demo"
+RIGORIX_AUTH_PLAINTEXT_DIR = ".rigorix/tmp/keychain"
+RIGORIX_APPROVAL_BINDING = "1"
+
 [[hooks.PreToolUse]]
 matcher = "^Bash$"
 
