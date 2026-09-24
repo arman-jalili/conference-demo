@@ -92,6 +92,13 @@ from the same authenticated user within 15 minutes — seat mutations carry
 the attested identity, so complete the device-flow login the agent prints
 before starting the pair.)
 
+> **ADR-016 note (audit integrity, local mode).** A deny-class cross-run rule
+> now **refuses** `local_unanchored` history by default (fail closed). The demo
+> config sets `RIGORIX_HISTORY_POLICY=allow_unanchored` — a recorded, auditable
+> opt-in — so this scene demonstrates the rule's denial rather than the
+> fail-closed refusal (which surfaces as a structured `policy_violation` with
+> `reason=history_unanchored`).
+
 **Close the loop:** after the refusal, restore alice with the `restore-seat`
 runbook — the demo ends back at 100/100 with alice seated, and the signed
 log tells the whole story: delete → refused add → restore.

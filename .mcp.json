@@ -6,7 +6,8 @@
       "env": {
         "RIGORIX_APPROVAL_BINDING": "1",
         "RIGORIX_IDP_ISSUER": "http://127.0.0.1:8080/realms/rigorix",
-        "RIGORIX_IDP_CLIENT_ID": "rigorix-demo"
+        "RIGORIX_IDP_CLIENT_ID": "rigorix-demo",
+        "RIGORIX_HISTORY_POLICY": "allow_unanchored"
       }
     }
   }
