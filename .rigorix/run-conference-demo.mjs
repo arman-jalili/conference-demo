@@ -127,6 +127,12 @@ const child = spawn(MCP_BIN, [], {
     RUST_LOG: verbose ? "info" : "warn",
     RIGORIX_APPROVAL_BINDING: "1",
     RIGORIX_HMAC_KEY: "conference-demo-hmac-key",
+    // ADR-016 (local_unanchored mode): the R7 cross-run rule
+    // (no-cross-run-remove-reassign) is deny-class over the signed local trail;
+    // without this recorded opt-in the engine FAILS CLOSED (structured
+    // policy_violation, reason=history_unanchored) instead of denying by rule.
+    // Records the opt-in into each envelope, preserving the deny narrative.
+    RIGORIX_HISTORY_POLICY: "allow_unanchored",
     RIGORIX_IDP_ISSUER: KC,
     RIGORIX_IDP_CLIENT_ID: "rigorix-demo",
     RIGORIX_AUTH_PLAINTEXT_DIR: resolve(repoRoot, ".rigorix/tmp/keychain"),

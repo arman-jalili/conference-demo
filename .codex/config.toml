@@ -36,6 +36,9 @@ RIGORIX_IDP_ISSUER = "http://127.0.0.1:8080/realms/rigorix"
 RIGORIX_IDP_CLIENT_ID = "rigorix-demo"
 RIGORIX_AUTH_PLAINTEXT_DIR = ".rigorix/tmp/keychain"
 RIGORIX_APPROVAL_BINDING = "1"
+# ADR-016: recorded opt-in for deny-class cross-run rules over the signed
+# local trail (see .mcp.json for the Claude Code counterpart).
+RIGORIX_HISTORY_POLICY = "allow_unanchored"
 
 [[hooks.PreToolUse]]
 matcher = "^Bash$"
